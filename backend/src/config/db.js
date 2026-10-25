@@ -1,6 +1,16 @@
 import mongoose from 'mongoose';
 import fs from 'fs';
+import dns from 'dns';
 import { config } from './env.js';
+
+// Ensure DNS SRV records resolve reliably on Windows for MongoDB Atlas
+if (config.mongodbUri.startsWith('mongodb+srv://')) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch (dnsErr) {
+    console.warn('[Database] Could not set custom DNS servers:', dnsErr.message);
+  }
+}
 
 let mongodInstance = null;
 
@@ -8,7 +18,7 @@ export const connectDB = async () => {
   try {
     // Attempt standard connection to configured URI
     const conn = await mongoose.connect(config.mongodbUri, {
-      serverSelectionTimeoutMS: 2000, // Quick timeout to fallback if local mongod is not running
+      serverSelectionTimeoutMS: 5000,
     });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
