@@ -63,9 +63,6 @@ Respond ONLY with a valid JSON object matching this exact schema:
   "disclaimer": "AI-generated results are preliminary guidance, not a certified laboratory diagnosis. Consult a qualified agricultural expert when symptoms are unclear or the crop is seriously affected."
 }`;
 
-    const modelName = config.aiModel || 'gemini-3.1-flash-lite';
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.aiProviderApiKey}`;
-
     const payload = {
       contents: [
         {
@@ -86,31 +83,62 @@ Respond ONLY with a valid JSON object matching this exact schema:
       },
     };
 
-    const res = await axios.post(endpoint, payload, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': config.aiProviderApiKey,
-      },
-      timeout: 30000,
-    });
+    const candidateModels = [
+      config.aiModel,
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+    ].filter(Boolean);
+    const modelsToTry = [...new Set(candidateModels)];
 
-    const candidate = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!candidate) {
-      throw new Error('No diagnostic content returned from Gemini Vision.');
+    let lastError = null;
+    let successfulResult = null;
+
+    for (const currentModel of modelsToTry) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${config.aiProviderApiKey}`;
+
+        const res = await axios.post(endpoint, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': config.aiProviderApiKey,
+          },
+          timeout: 30000,
+        });
+
+        const candidate = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!candidate) {
+          throw new Error(`No diagnostic content returned from Gemini Vision (${currentModel}).`);
+        }
+
+        let cleanJson = candidate.trim();
+        if (cleanJson.startsWith('```')) {
+          cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+        }
+        const parsed = JSON.parse(cleanJson);
+        parsed.providerMetadata = {
+          provider: 'Google Gemini Vision AI',
+          model: currentModel,
+          isDemoMode: false,
+        };
+
+        successfulResult = parsed;
+        break;
+      } catch (modelErr) {
+        lastError = modelErr;
+        if (modelErr.response?.status === 404) {
+          console.warn(`[GeminiVision] Model '${currentModel}' not found (404), trying fallback model...`);
+          continue;
+        }
+        throw modelErr;
+      }
     }
 
-    let cleanJson = candidate.trim();
-    if (cleanJson.startsWith('```')) {
-      cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    if (!successfulResult) {
+      throw lastError || new Error('All candidate Gemini vision models failed.');
     }
-    const parsed = JSON.parse(cleanJson);
-    parsed.providerMetadata = {
-      provider: 'Google Gemini Vision AI',
-      model: modelName,
-      isDemoMode: false,
-    };
 
-    return parsed;
+    return successfulResult;
   } catch (err) {
     console.error('[GeminiVision] Error in crop analysis:', err.response?.data || err.message);
     throw err;
