@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sprout, User, Mail, Lock, Globe, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
+import { Sprout, User, Mail, Lock, Globe, MapPin, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -19,6 +19,8 @@ export const RegisterPage = () => {
     preferredLanguage: 'en',
     locationName: 'Guntur, Andhra Pradesh',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -134,13 +136,22 @@ export const RegisterPage = () => {
               <div className="relative flex items-center">
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-3 py-2.5 text-sm bg-cream-50/70 border border-agri-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-agri-500 text-agri-dark"
+                  className="w-full pl-10 pr-9 py-2.5 text-sm bg-cream-50/70 border border-agri-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-agri-500 text-agri-dark"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 p-1 text-gray-400 hover:text-agri-700 focus:outline-none transition-colors"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -151,13 +162,22 @@ export const RegisterPage = () => {
               <div className="relative flex items-center">
                 <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 pointer-events-none" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   required
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-3 py-2.5 text-sm bg-cream-50/70 border border-agri-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-agri-500 text-agri-dark"
+                  className="w-full pl-10 pr-9 py-2.5 text-sm bg-cream-50/70 border border-agri-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-agri-500 text-agri-dark"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-2.5 p-1 text-gray-400 hover:text-agri-700 focus:outline-none transition-colors"
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </div>
