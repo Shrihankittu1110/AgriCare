@@ -227,7 +227,7 @@ export const ScanCropPage = () => {
               <span className="text-[10px] text-gray-500 font-medium">Click to test</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               <button
                 type="button"
                 onClick={() => handleSelectSample('/samples/tomato_early_blight.jpg', 'tomato_early_blight.jpg')}
@@ -249,6 +249,18 @@ export const ScanCropPage = () => {
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-agri-900 truncate">Cotton Leaf Curl</div>
                   <div className="text-[10px] text-orange-700 font-medium">Vein Swelling & Curl</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectSample('/samples/corn_fall_armyworm.jpg', 'corn_fall_armyworm.jpg')}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-agri-50 border border-cream-200 text-left transition-all group"
+              >
+                <img src="/samples/corn_fall_armyworm.jpg" alt="Corn Fall Armyworm" className="w-10 h-10 rounded-lg object-cover border" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-agri-900 truncate">Corn Fall Armyworm</div>
+                  <div className="text-[10px] text-red-700 font-medium">Chewed Leaf Whorls</div>
                 </div>
               </button>
 
