@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { CropScan } from '../models/CropScan.js';
 import { detectCropDisease } from '../services/cropDetection/index.js';
+import { translateScanData } from '../services/cropDetection/scanTranslator.js';
 
 export const analyzeScan = async (req, res, next) => {
   try {
@@ -46,6 +47,7 @@ export const analyzeScan = async (req, res, next) => {
       likelyCauses: diagnostic.likelyCauses,
       recommendations: diagnostic.recommendations,
       weatherContext: diagnostic.weatherContext || {},
+      climateActionPlan: diagnostic.climateActionPlan || {},
       expertConsultationNote: diagnostic.expertConsultationNote,
       disclaimer: diagnostic.disclaimer,
       providerMetadata: diagnostic.providerMetadata,
@@ -162,6 +164,53 @@ export const deleteScan = async (req, res, next) => {
     res.json({
       success: true,
       message: 'Scan record and associated image removed successfully.',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const translateScan = async (req, res, next) => {
+  try {
+    const scan = await CropScan.findById(req.params.id);
+
+    if (!scan) {
+      return res.status(404).json({
+        success: false,
+        message: 'Scan record not found.',
+      });
+    }
+
+    if (scan.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. You do not have permission to translate this scan.',
+      });
+    }
+
+    const { language = 'en' } = req.body;
+    const targetLanguage = ['en', 'te', 'hi'].includes(language) ? language : 'en';
+
+    const translated = await translateScanData(scan, targetLanguage);
+
+    scan.crop = translated.crop;
+    scan.disease = translated.disease;
+    scan.healthStatus = translated.healthStatus;
+    scan.severityEstimate = translated.severityEstimate;
+    scan.visibleSymptoms = translated.visibleSymptoms;
+    scan.likelyCauses = translated.likelyCauses;
+    scan.recommendations = translated.recommendations;
+    scan.climateActionPlan = translated.climateActionPlan;
+    scan.expertConsultationNote = translated.expertConsultationNote;
+    scan.disclaimer = translated.disclaimer;
+    scan.language = targetLanguage;
+
+    await scan.save();
+
+    res.json({
+      success: true,
+      message: `Diagnostic report translated to ${targetLanguage}.`,
+      scan,
     });
   } catch (err) {
     next(err);

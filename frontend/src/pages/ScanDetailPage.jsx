@@ -101,7 +101,11 @@ export const ScanDetailPage = () => {
         </button>
       </div>
 
-      <ScanResultCard scan={scan} />
+      <ScanResultCard
+        scan={scan}
+        onScanAnother={() => navigate('/scan')}
+        onScanUpdated={setScan}
+      />
     </div>
   );
 };

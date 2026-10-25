@@ -25,4 +25,9 @@ export const scanService = {
     const res = await api.delete(`/scans/${id}`);
     return res.data;
   },
+
+  async translateScan(id, language) {
+    const res = await api.post(`/scans/${id}/translate`, { language });
+    return res.data;
+  },
 };

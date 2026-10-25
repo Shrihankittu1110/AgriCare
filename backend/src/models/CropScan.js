@@ -71,6 +71,14 @@ const cropScanSchema = new mongoose.Schema(
       rainfallProbability: { type: Number, default: null },
       weatherAssessment: { type: String, default: '' },
     },
+    climateActionPlan: {
+      climateSummary: { type: String, default: '' },
+      predictedImpact: { type: String, default: '' },
+      immediateNaturalAction: { type: String, default: '' },
+      chemicalAction: { type: String, default: '' },
+      irrigationGuidance: { type: String, default: '' },
+      timelineGuidance: { type: String, default: '' },
+    },
     expertConsultationNote: {
       type: String,
       default: 'Consult a local agricultural extension officer or certified agronomist if chlorosis or defoliation spreads rapidly beyond 15% of the canopy.',

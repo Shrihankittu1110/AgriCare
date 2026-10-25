@@ -130,6 +130,7 @@ export const ScanCropPage = () => {
         <ScanResultCard
           scan={analyzedScan}
           onScanAnother={handleResetScan}
+          onScanUpdated={setAnalyzedScan}
         />
       ) : (
         /* Capture & Upload Interface */
