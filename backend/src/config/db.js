@@ -16,17 +16,18 @@ let mongodInstance = null;
 
 export const connectDB = async () => {
   try {
+    console.log(`[Database] Connecting to MongoDB: ${config.mongodbUri.replace(/:([^:@]+)@/, ':****@')}...`);
     // Attempt standard connection to configured URI
     const conn = await mongoose.connect(config.mongodbUri, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 15000,
     });
-    console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
+    console.log(`[Database] MongoDB Connected successfully: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
   } catch (err) {
     console.warn(`[Database] Primary MongoDB connection failed (${err.message}).`);
 
-    // In development or test, fall back to in-memory MongoDB server so the app runs out-of-the-box
-    if (config.nodeEnv !== 'production') {
+    // In local development or test ONLY (never on Render production), fall back to in-memory MongoDB
+    if (config.nodeEnv !== 'production' && !process.env.RENDER) {
       try {
         console.log('[Database] Starting in-memory MongoDB server fallback...');
         const systemBinaryPaths = [

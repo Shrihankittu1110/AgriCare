@@ -79,13 +79,27 @@ app.use(cookieParser());
 app.use('/uploads', express.static(config.uploadDir));
 
 // Health check endpoints
-const healthCheckHandler = (req, res) => {
+const healthCheckHandler = async (req, res) => {
+  let userCount = 0;
+  try {
+    userCount = await mongoose.connection.db?.collection('users')?.countDocuments() ?? 0;
+  } catch (e) {
+    // ignore
+  }
+
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'AgriCare AI Backend API',
     version: '1.0.0',
     environment: config.nodeEnv,
+    database: {
+      connected: mongoose.connection.readyState === 1,
+      host: mongoose.connection.host,
+      name: mongoose.connection.name,
+      userCount,
+      isAtlas: mongoose.connection.host?.includes('mongodb.net') || false,
+    },
     providers: {
       weather: config.weatherApiKey ? 'OpenWeatherMap API' : 'Open-Meteo (Free Meteorological Service)',
       ai: config.aiProviderApiKey ? `Gemini (${config.aiModel})` : 'AgriCare Agronomy Demo Engine',
