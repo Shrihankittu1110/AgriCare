@@ -36,7 +36,6 @@ const cropScanSchema = new mongoose.Schema(
     },
     healthStatus: {
       type: String,
-      enum: ['Healthy', 'Suspected Disease', 'Pest Damage', 'Nutrient Deficiency', 'Inconclusive'],
       default: 'Healthy',
       index: true,
     },
@@ -48,7 +47,6 @@ const cropScanSchema = new mongoose.Schema(
     },
     severityEstimate: {
       type: String,
-      enum: ['None', 'Low', 'Moderate', 'High', 'Severe', 'Inconclusive'],
       default: 'Low',
     },
     visibleSymptoms: {

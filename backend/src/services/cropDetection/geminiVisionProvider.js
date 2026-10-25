@@ -2,7 +2,12 @@ import axios from 'axios';
 import fs from 'fs';
 import { config } from '../../config/env.js';
 
+let cachedModels = null;
+
 export const fetchSupportedModels = async (apiKey) => {
+  if (cachedModels && cachedModels.length > 0) {
+    return cachedModels;
+  }
   for (const version of ['v1beta', 'v1']) {
     try {
       const url = `https://generativelanguage.googleapis.com/${version}/models`;
@@ -27,8 +32,9 @@ export const fetchSupportedModels = async (apiKey) => {
           name: m.name.replace(/^models\//, ''),
         }));
       if (models.length > 0) {
+        cachedModels = models;
         console.log(`[GeminiVision] Discovered ${models.length} active vision models via ${version}:`, models.map((s) => s.name));
-        return models;
+        return cachedModels;
       }
     } catch (err) {
       console.warn(`[GeminiVision] ListModels (${version}) error:`, err.response?.data?.error?.message || err.message);
@@ -125,7 +131,6 @@ Respond ONLY with a valid JSON object matching this exact schema:
     // User configured model (e.g. gemini-flash-latest) has #1 priority
     if (config.aiModel) {
       candidates.push({ version: 'v1beta', name: config.aiModel });
-      candidates.push({ version: 'v1', name: config.aiModel });
     }
 
     if (discovered.length > 0) {
@@ -165,7 +170,7 @@ Respond ONLY with a valid JSON object matching this exact schema:
             'Content-Type': 'application/json',
             'X-goog-api-key': config.aiProviderApiKey,
           },
-          timeout: 30000,
+          timeout: 60000,
         });
 
         const candidate = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;

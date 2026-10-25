@@ -201,8 +201,8 @@ Respond ONLY with valid JSON with this schema:
   "disclaimer": "..."
 }`;
 
-      const modelName = config.aiModel || 'gemini-3.1-flash-lite';
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.aiProviderApiKey}`;
+      const modelName = config.aiModel || 'gemini-flash-latest';
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
 
       const res = await axios.post(
         endpoint,
@@ -213,12 +213,22 @@ Respond ONLY with valid JSON with this schema:
             temperature: 0.2,
           },
         },
-        { timeout: 15000 }
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': config.aiProviderApiKey,
+          },
+          timeout: 15000,
+        }
       );
 
       const candidate = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (candidate) {
-        const parsed = JSON.parse(candidate);
+        let cleanJson = candidate.trim();
+        if (cleanJson.startsWith('```')) {
+          cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+        }
+        const parsed = JSON.parse(cleanJson);
         return {
           crop: {
             ...scan.crop,
