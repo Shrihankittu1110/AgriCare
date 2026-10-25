@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { scanService } from '../services/scanService';
 import { useToast } from '../context/ToastContext';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 export const ScanHistoryPage = () => {
   const { t } = useTranslation();
@@ -169,7 +170,7 @@ export const ScanHistoryPage = () => {
                   <div className="relative aspect-[16/10] bg-gray-100 overflow-hidden">
                     {scan.imageUrl ? (
                       <img
-                        src={scan.imageUrl}
+                        src={resolveImageUrl(scan.imageUrl)}
                         alt="Crop leaf observation"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />

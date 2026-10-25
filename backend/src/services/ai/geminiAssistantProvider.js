@@ -44,7 +44,7 @@ Guidelines:
     formattedContents[0].parts[0].text = `${contextPrefix}\n\nUser Question:\n${formattedContents[0].parts[0].text}`;
   }
 
-  const modelName = config.aiModel || 'gemini-1.5-flash';
+  const modelName = config.aiModel || 'gemini-3.1-flash-lite';
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.aiProviderApiKey}`;
 
   const payload = {

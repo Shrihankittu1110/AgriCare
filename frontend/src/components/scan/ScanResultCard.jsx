@@ -26,6 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis';
 import { scanService } from '../../services/scanService';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 export const ScanResultCard = ({ scan, onScanAnother, onScanUpdated }) => {
   const { t, i18n } = useTranslation();
@@ -382,7 +383,7 @@ export const ScanResultCard = ({ scan, onScanAnother, onScanUpdated }) => {
           <div className="w-full md:w-56 h-56 rounded-2xl overflow-hidden bg-gray-100 border border-agri-200 flex-shrink-0 relative shadow-sm">
             {imageUrl ? (
               <img
-                src={imageUrl}
+                src={resolveImageUrl(imageUrl)}
                 alt="Analyzed leaf specimen"
                 className="w-full h-full object-cover"
               />

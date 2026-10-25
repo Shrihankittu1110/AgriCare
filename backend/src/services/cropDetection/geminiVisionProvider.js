@@ -60,7 +60,7 @@ Respond ONLY with a valid JSON object matching this exact schema:
   "disclaimer": "AI-generated results are preliminary guidance, not a certified laboratory diagnosis. Consult a qualified agricultural expert when symptoms are unclear or the crop is seriously affected."
 }`;
 
-    const modelName = config.aiModel || 'gemini-1.5-flash';
+    const modelName = config.aiModel || 'gemini-3.1-flash-lite';
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.aiProviderApiKey}`;
 
     const payload = {

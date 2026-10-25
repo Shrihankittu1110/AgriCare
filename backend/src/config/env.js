@@ -16,8 +16,8 @@ export const config = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   
   // Weather
-  weatherApiKey: process.env.WEATHER_API_KEY || '',
-  weatherProvider: process.env.WEATHER_PROVIDER || 'open-meteo', // 'open-meteo' or 'openweather'
+  weatherApiKey: process.env.WEATHER_API_KEY || 'ac06926801ae55521bf76ea2e84c4461',
+  weatherProvider: process.env.WEATHER_PROVIDER || 'openweather', // 'open-meteo' or 'openweather'
   
   // AI Provider (Gemini / OpenAI)
   aiProviderApiKey: process.env.AI_PROVIDER_API_KEY || process.env.GEMINI_API_KEY || '',
