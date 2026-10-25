@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-agri-dark font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4f0e2;
+}
+::-webkit-scrollbar-thumb {
+  background: #95d1a0;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5fb670;
+}
+
+/* Pulse animation for voice wave */
+@keyframes voice-wave {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-wave-1 {
+  animation: voice-wave 1s ease-in-out infinite;
+}
+.animate-wave-2 {
+  animation: voice-wave 1s ease-in-out infinite 0.2s;
+}
+.animate-wave-3 {
+  animation: voice-wave 1s ease-in-out infinite 0.4s;
+}
+.animate-wave-4 {
+  animation: voice-wave 1s ease-in-out infinite 0.1s;
+}

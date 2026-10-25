@@ -1,0 +1,219 @@
+{
+  "nav": {
+    "brand": "AgriCare AI",
+    "home": "Home",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "weather": "Weather",
+    "about": "About",
+    "dashboard": "Dashboard",
+    "scan": "Scan Crop",
+    "assistant": "AI Assistant",
+    "history": "Scan History",
+    "login": "Login",
+    "register": "Get Started",
+    "logout": "Logout",
+    "profile": "Profile"
+  },
+  "hero": {
+    "tag": "Next-Gen AI Agriculture Platform",
+    "title": "Smarter Farming Starts with a Healthier Crop.",
+    "subtitle": "Identify possible crop diseases, understand local weather, and get AI-powered farming guidance in your preferred language.",
+    "scanCrop": "Scan Your Crop",
+    "exploreFeatures": "Explore Features",
+    "badge": "Empowering 10,000+ Farmers with Real-Time AI Diagnostics"
+  },
+  "features": {
+    "title": "Built for Practical, Everyday Farming",
+    "subtitle": "Advanced artificial intelligence simplified into practical agronomy tools on your phone.",
+    "leafDetection": {
+      "title": "AI Leaf Disease Detection",
+      "desc": "Detect early symptoms of blight, rust, spots, and nutrient deficiencies with visual diagnosis."
+    },
+    "cropHealth": {
+      "title": "Crop Health Analysis",
+      "desc": "Receive health status ratings, severity estimates, and verified visual symptom breakdowns."
+    },
+    "localWeather": {
+      "title": "Local Weather Forecast",
+      "desc": "Real-time meteorological insights with 7-day temperature, rainfall, and wind tracking."
+    },
+    "aiAssistant": {
+      "title": "AI Farming Assistant",
+      "desc": "Ask practical agronomy questions grounded in verified agricultural practices anytime."
+    },
+    "voiceInteraction": {
+      "title": "Voice-Based Interaction",
+      "desc": "Speak in your local dialect and listen to spoken answers in English, Telugu, or Hindi."
+    },
+    "multilingual": {
+      "title": "Telugu, English & Hindi",
+      "desc": "Seamless localized experience designed natively for Indian regional agricultural needs."
+    },
+    "history": {
+      "title": "Personalized History",
+      "desc": "Track your field's health progression, review past diagnoses, and monitor treatments."
+    },
+    "preventive": {
+      "title": "Preventive Guidance",
+      "desc": "Integrate weather trends with disease susceptibility to prevent crop loss before it strikes."
+    }
+  },
+  "howItWorks": {
+    "title": "How AgriCare AI Works",
+    "subtitle": "Get clear, actionable guidance in four simple steps",
+    "step1": {
+      "title": "1. Capture or Upload",
+      "desc": "Take a photo of the affected plant leaf or upload an image from your gallery."
+    },
+    "step2": {
+      "title": "2. AI Visual Diagnosis",
+      "desc": "Our vision engine analyzes lesions, discoloration, and patterns to detect anomalies."
+    },
+    "step3": {
+      "title": "3. Environmental Context",
+      "desc": "Cross-reference disease susceptibility with local temperature, humidity, and rainfall."
+    },
+    "step4": {
+      "title": "4. Actionable Advisory",
+      "desc": "Receive safe cultural practices, organic treatments, and clear prevention steps."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "location": "Current Farm Location",
+    "changeLocation": "Change",
+    "weatherSummary": "Local Weather Outlook",
+    "scanCrop": "Scan Crop Leaf",
+    "askAssistant": "Ask AI Agronomist",
+    "recentScans": "Recent Crop Scans",
+    "viewAll": "View All History",
+    "noScans": "No scans recorded yet. Capture your first crop leaf to assess its health!",
+    "farmingAlerts": "Agricultural Weather Alerts",
+    "quickTips": "Daily Farming Tips",
+    "quickTipsList": [
+      "Water crops early morning to reduce evaporation and fungal leaf growth.",
+      "Check underside of leaves for early aphid and mite infestations.",
+      "Avoid spraying pesticides during high winds to minimize drift."
+    ],
+    "healthStatus": {
+      "healthy": "Healthy",
+      "suspected": "Suspected Issue",
+      "critical": "Critical Attention"
+    }
+  },
+  "scan": {
+    "title": "AI Leaf Health Diagnostic",
+    "subtitle": "Point your camera or upload a clear photo of an affected leaf for diagnosis.",
+    "cameraTab": "Use Camera",
+    "uploadTab": "Upload Photo",
+    "takePhoto": "Capture Leaf Photo",
+    "chooseFile": "Select Image from Device",
+    "dragDrop": "Drag and drop leaf image here, or browse",
+    "retake": "Retake Photo",
+    "changeImage": "Change Image",
+    "analyzeBtn": "Analyze Leaf Health",
+    "analyzing": "Analyzing crop leaf...",
+    "analyzingDesc": "Checking leaf pigmentation, spot patterns, and cross-referencing agricultural models...",
+    "instructionsTitle": "Best Practices for Clear Diagnostics",
+    "tips": [
+      "Ensure good natural daylight without strong shadows or direct glare.",
+      "Focus closely on the symptomatic leaf portion showing discoloration or spots.",
+      "Keep camera steady and wipe lens for sharp image clarity.",
+      "Avoid blurry, distant, or multi-plant overlapping photos."
+    ],
+    "result": {
+      "title": "Diagnostic Report",
+      "cropIdentified": "Identified Crop",
+      "diseaseDetected": "Condition / Disease",
+      "status": "Health Status",
+      "confidence": "Analysis Confidence",
+      "severity": "Estimated Severity",
+      "symptoms": "Visible Symptoms",
+      "causes": "Likely Causes",
+      "recommendations": "Recommended Actions",
+      "weatherConsiderations": "Weather & Environmental Impact",
+      "expertEscalation": "When to Consult an Agronomist",
+      "disclaimer": "AI-generated results provide preliminary guidance, not a certified laboratory diagnosis. Consult a local agricultural extension officer or certified agronomist for critical crop loss situations."
+    }
+  },
+  "weather": {
+    "title": "Agricultural Weather Intelligence",
+    "subtitle": "Real-time microclimate metrics and agronomic risk assessments.",
+    "searchPlaceholder": "Search city, district, or pin code...",
+    "searchBtn": "Search",
+    "current": "Current Conditions",
+    "temp": "Temperature",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "rainProb": "Precipitation Probability",
+    "precipitation": "Rainfall",
+    "pressure": "Pressure",
+    "uvIndex": "UV Index",
+    "forecast": "7-Day Weather Outlook",
+    "alerts": "Agronomic Risk Advisory",
+    "fungalRisk": "High humidity & warm temperatures: heightened fungal sporulation risk.",
+    "sprayWarning": "Expected rain within 24 hours: postpone foliar pesticide/fertilizer spray.",
+    "irrigationAdvice": "Optimal soil moisture levels detected. Reduce irrigation frequency."
+  },
+  "assistant": {
+    "title": "AI Agricultural Assistant",
+    "subtitle": "Ask questions regarding plant diseases, pest control, soil health, and weather impact.",
+    "placeholder": "Type your farming question, or click the mic to speak...",
+    "send": "Send",
+    "listening": "Listening... Speak clearly into your microphone.",
+    "stopListening": "Stop",
+    "speaking": "Reading response aloud...",
+    "stopSpeaking": "Stop Audio",
+    "suggestedTitle": "Common Inquiries",
+    "clearChat": "Clear Conversation",
+    "cropContext": "Active Crop Context",
+    "noContext": "General Farming Inquiry",
+    "disclaimer": "Grounding advice on practical agricultural practices. Always verify chemical safety labels with local authorities."
+  },
+  "auth": {
+    "loginTitle": "Welcome Back to AgriCare",
+    "loginSubtitle": "Access your farm's health diagnostics and history",
+    "registerTitle": "Create Your AgriCare Account",
+    "registerSubtitle": "Join thousands of farmers protecting their yields",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "preferredLanguage": "Preferred Language",
+    "farmLocation": "Farm Location / District (Optional)",
+    "loginBtn": "Sign In",
+    "registerBtn": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "signInHere": "Sign in here",
+    "signUpHere": "Sign up here",
+    "passwordMismatch": "Passwords do not match.",
+    "loginSuccess": "Successfully logged in!",
+    "registerSuccess": "Account created successfully!"
+  },
+  "permissions": {
+    "cameraTitle": "Camera Access Required",
+    "cameraDesc": "Allow camera access to take a picture of your crop or leaf for health analysis.",
+    "micTitle": "Microphone Access Required",
+    "micDesc": "Allow microphone access to ask farming questions using your voice.",
+    "locTitle": "Location Access Required",
+    "locDesc": "Your location helps us provide local weather forecasts and more relevant farming advice.",
+    "allow": "Allow Access",
+    "deny": "Deny / Use Manual Option",
+    "close": "Close"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try Again",
+    "save": "Save Changes",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "back": "Back",
+    "viewDetails": "View Details",
+    "demoMode": "Demo / Development Mode",
+    "demoModeDesc": "Running in offline demonstration mode. Configure API key for live production AI services."
+  }
+}

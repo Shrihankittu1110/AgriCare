@@ -1,0 +1,108 @@
+import axios from 'axios';
+import fs from 'fs';
+import { config } from '../../config/env.js';
+
+export const analyzeCropWithGemini = async (imagePath, mimeType = 'image/jpeg', targetLanguage = 'en') => {
+  if (!config.aiProviderApiKey) {
+    throw new Error('AI Provider API Key (Gemini) is not configured.');
+  }
+
+  try {
+    const imageBytes = fs.readFileSync(imagePath);
+    const base64Image = imageBytes.toString('base64');
+
+    const prompt = `You are a certified senior agricultural pathologist and crop diagnostic specialist.
+Analyze this crop leaf image carefully and provide a rigorous, objective diagnostic assessment in valid JSON format.
+If the image is blurry, does not depict a plant leaf, or is inconclusive, set healthStatus to "Inconclusive" and advise retaking the photo.
+Target language for text explanations: ${targetLanguage === 'te' ? 'Telugu (తెలుగు)' : targetLanguage === 'hi' ? 'Hindi (हिन्दी)' : 'English'}.
+
+Respond ONLY with a valid JSON object matching this exact schema:
+{
+  "crop": {
+    "name": "Common crop name (e.g. Tomato, Cotton, Rice, Wheat)",
+    "scientificName": "Latin binomial if determinable (e.g. Solanum lycopersicum)",
+    "confidence": 88
+  },
+  "disease": {
+    "name": "Common disease name or 'None / Healthy Leaf'",
+    "scientificName": "Pathogen name (fungus, bacterium, virus) if applicable",
+    "confidence": 84
+  },
+  "healthStatus": "Healthy" | "Suspected Disease" | "Pest Damage" | "Nutrient Deficiency" | "Inconclusive",
+  "confidenceScore": 85,
+  "severityEstimate": "None" | "Low" | "Moderate" | "High" | "Severe" | "Inconclusive",
+  "visibleSymptoms": [
+    "Symptom 1 describing lesion appearance, chlorosis, or spot pattern",
+    "Symptom 2"
+  ],
+  "likelyCauses": [
+    "Fungal spore transmission via rain splash",
+    "High humidity and poor air circulation"
+  ],
+  "recommendations": {
+    "cultural": [
+      "Prune affected lower leaves to improve aeration",
+      "Avoid overhead sprinkler irrigation"
+    ],
+    "organic": [
+      "Apply certified neem oil (Azadirachtin 0.03%) during early evening",
+      "Bio-fungicide application such as Trichoderma viride"
+    ],
+    "preventive": [
+      "Practice crop rotation with non-solanaceous crops",
+      "Maintain wide spacing between rows"
+    ],
+    "cautiousChemicalNotes": [
+      "Any synthetic fungicide must strictly adhere to local government CIBRC approval and product label dilution rates."
+    ]
+  },
+  "expertConsultationNote": "Contact your local Krishi Vigyan Kendra (KVK) or district agricultural officer if symptoms spread to more than 20% of your crop canopy.",
+  "disclaimer": "AI-generated results are preliminary guidance, not a certified laboratory diagnosis. Consult a qualified agricultural expert when symptoms are unclear or the crop is seriously affected."
+}`;
+
+    const modelName = config.aiModel || 'gemini-1.5-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${config.aiProviderApiKey}`;
+
+    const payload = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: base64Image,
+              },
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        response_mime_type: 'application/json',
+        temperature: 0.2,
+      },
+    };
+
+    const res = await axios.post(endpoint, payload, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000,
+    });
+
+    const candidate = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!candidate) {
+      throw new Error('No diagnostic content returned from Gemini Vision.');
+    }
+
+    const parsed = JSON.parse(candidate);
+    parsed.providerMetadata = {
+      provider: 'Google Gemini Vision AI',
+      model: modelName,
+      isDemoMode: false,
+    };
+
+    return parsed;
+  } catch (err) {
+    console.error('[GeminiVision] Error in crop analysis:', err.response?.data || err.message);
+    throw err;
+  }
+};
