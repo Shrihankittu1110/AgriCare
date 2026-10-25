@@ -138,6 +138,8 @@ Respond ONLY with a valid JSON object matching this exact schema:
     candidates.push(
       { version: 'v1beta', name: 'gemini-flash-latest' },
       { version: 'v1beta', name: 'gemini-2.5-flash' },
+      { version: 'v1beta', name: 'gemini-2.0-flash' },
+      { version: 'v1beta', name: 'gemini-2.5-pro' },
       { version: 'v1', name: 'gemini-flash-latest' }
     );
 
@@ -188,13 +190,25 @@ Respond ONLY with a valid JSON object matching this exact schema:
       } catch (modelErr) {
         lastError = modelErr;
         const msg = modelErr.response?.data?.error?.message || modelErr.message || '';
-        // If model not found (404) OR does not support images (400), seamlessly try next candidate!
-        if (
-          modelErr.response?.status === 404 ||
+        const status = modelErr.response?.status;
+
+        const isTemporary =
+          status === 503 ||
+          status === 429 ||
+          msg.includes('high demand') ||
+          msg.includes('overloaded') ||
+          msg.includes('Resource has been exhausted');
+
+        const isUnsupported =
+          status === 404 ||
           msg.includes('Image input modality is not enabled') ||
-          msg.includes('is not supported')
-        ) {
+          msg.includes('is not supported');
+
+        if (isTemporary || isUnsupported) {
           console.warn(`[GeminiVision] Model '${currentModel}' on ${version} skipped: ${msg}`);
+          if (isTemporary) {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+          }
           continue;
         }
         throw modelErr;
