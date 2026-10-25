@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Normalize API base URL to handle trailing slashes or omitted /api paths
 const getBaseUrl = () => {
-  let url = import.meta.env.VITE_API_URL || '/api';
+  let url = import.meta.env.VITE_API_URL || 'https://agricare-mc0n.onrender.com/api';
   url = url.trim().replace(/\/+$/, '');
   // If user passed e.g. https://agricare-mc0n.onrender.com without /api, append /api
   if (url.startsWith('http') && !url.endsWith('/api')) {
