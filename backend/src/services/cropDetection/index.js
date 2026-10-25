@@ -24,9 +24,10 @@ export const detectCropDisease = async ({
       console.log(`[CropDetection] Invoking Gemini Vision model: ${config.aiModel}...`);
       result = await analyzeCropWithGemini(imagePath, mimeType, targetLanguage);
     } catch (err) {
-      console.warn(`[CropDetection] Gemini Vision failed (${err.message}), falling back to demo mode`);
+      const detailedError = err.response?.data?.error?.message || err.message;
+      console.warn(`[CropDetection] Gemini Vision failed (${detailedError}), falling back to demo mode`);
       result = await analyzeCropDemo(imagePath, targetLanguage);
-      result.providerMetadata.fallbackReason = err.message;
+      result.providerMetadata.fallbackReason = detailedError;
     }
   } else {
     console.log('[CropDetection] Running in configured demo/development mode');

@@ -26,11 +26,11 @@ export const config = {
   weatherProvider: process.env.WEATHER_PROVIDER || 'openweather', // 'open-meteo' or 'openweather'
   
   // AI Provider (Gemini / OpenAI)
-  aiProviderApiKey: process.env.AI_PROVIDER_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_AI_KEY,
-  aiModel: process.env.AI_MODEL || 'gemini-3.1-flash-lite',
+  aiProviderApiKey: (process.env.AI_PROVIDER_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_AI_KEY)?.trim(),
+  aiModel: (process.env.AI_MODEL || 'gemini-1.5-flash')?.trim(),
   
   // Crop detection
-  cropDetectionProvider: process.env.CROP_DETECTION_PROVIDER || 'gemini', // 'auto', 'gemini', 'demo'
+  cropDetectionProvider: (process.env.CROP_DETECTION_PROVIDER || 'gemini')?.trim(), // 'auto', 'gemini', 'demo'
   
   // Storage
   uploadDir: process.env.UPLOAD_DIR || path.resolve(__dirname, '../../uploads'),

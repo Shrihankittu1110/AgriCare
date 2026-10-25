@@ -91,6 +91,7 @@ const cropScanSchema = new mongoose.Schema(
       provider: { type: String, default: 'agricare-vision-engine' },
       model: { type: String, default: 'standard-v1' },
       isDemoMode: { type: Boolean, default: false },
+      fallbackReason: { type: String, default: '' },
     },
     language: {
       type: String,

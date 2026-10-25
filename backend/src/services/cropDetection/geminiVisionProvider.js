@@ -12,8 +12,11 @@ export const analyzeCropWithGemini = async (imagePath, mimeType = 'image/jpeg', 
     const base64Image = imageBytes.toString('base64');
 
     const prompt = `You are a certified senior agricultural pathologist and crop diagnostic specialist.
-Analyze this crop leaf image carefully and provide a rigorous, objective diagnostic assessment in valid JSON format.
-If the image is blurry, does not depict a plant leaf, or is inconclusive, set healthStatus to "Inconclusive" and advise retaking the photo.
+Analyze this crop image (leaf, fruit, boll, flower, stem, or canopy) carefully and provide a rigorous, objective diagnostic assessment in valid JSON format.
+Accurately identify the crop species (e.g. Cotton, Tomato, Rice, Chilli, Maize, Wheat, etc.).
+If the image shows a healthy crop or normal harvest-ready stage (such as mature opened cotton bolls), classify healthStatus as "Healthy" with disease name as "None / Healthy Crop".
+If signs of foliar blight, leaf curl virus, boll rot, bacterial spot, pest infestation, or deficiency are visible, identify the specific pathogen or condition.
+If the image does not depict an agricultural plant or is completely unreadable, set healthStatus to "Inconclusive".
 Target language for text explanations: ${targetLanguage === 'te' ? 'Telugu (తెలుగు)' : targetLanguage === 'hi' ? 'Hindi (हिन्दी)' : 'English'}.
 
 Respond ONLY with a valid JSON object matching this exact schema:
@@ -69,8 +72,8 @@ Respond ONLY with a valid JSON object matching this exact schema:
           parts: [
             { text: prompt },
             {
-              inline_data: {
-                mime_type: mimeType,
+              inlineData: {
+                mimeType: mimeType,
                 data: base64Image,
               },
             },
@@ -84,7 +87,10 @@ Respond ONLY with a valid JSON object matching this exact schema:
     };
 
     const res = await axios.post(endpoint, payload, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': config.aiProviderApiKey,
+      },
       timeout: 30000,
     });
 
@@ -93,7 +99,11 @@ Respond ONLY with a valid JSON object matching this exact schema:
       throw new Error('No diagnostic content returned from Gemini Vision.');
     }
 
-    const parsed = JSON.parse(candidate);
+    let cleanJson = candidate.trim();
+    if (cleanJson.startsWith('```')) {
+      cleanJson = cleanJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    }
+    const parsed = JSON.parse(cleanJson);
     parsed.providerMetadata = {
       provider: 'Google Gemini Vision AI',
       model: modelName,

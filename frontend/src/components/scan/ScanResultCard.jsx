@@ -271,11 +271,16 @@ export const ScanResultCard = ({ scan, onScanAnother, onScanUpdated }) => {
     <div className="bg-white rounded-3xl border border-agri-100 shadow-soft-lg overflow-hidden transition-all">
       {/* Top Banner / Demo Notice */}
       {providerMetadata?.isDemoMode && (
-        <div className="bg-amber-500/10 border-b border-amber-200 px-6 py-2.5 flex items-center justify-between text-xs text-amber-900">
-          <div className="flex items-center gap-2">
+        <div className="bg-amber-500/10 border-b border-amber-200 px-6 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-900">
+          <div className="flex flex-wrap items-center gap-2">
             <Info className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <span className="font-semibold">Development / Demonstration Mode:</span>
             <span>Preliminary simulated pathology analysis.</span>
+            {providerMetadata?.fallbackReason && (
+              <span className="bg-red-100 text-red-800 text-[11px] font-mono px-2 py-0.5 rounded border border-red-200">
+                Reason: {providerMetadata.fallbackReason}
+              </span>
+            )}
           </div>
           <span className="hidden sm:inline-block bg-amber-200/80 px-2 py-0.5 rounded text-[10px] font-bold">
             DEMO
