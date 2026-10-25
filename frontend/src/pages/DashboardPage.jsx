@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Search,
   X,
+  LocateFixed,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -39,6 +40,50 @@ export const DashboardPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
+
+  const handleDetectGpsLocation = () => {
+    if (!('geolocation' in navigator)) {
+      showToast('Geolocation is not supported by your browser.', 'error');
+      return;
+    }
+
+    setIsDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          showToast('Detecting location name...', 'info');
+          const detectedName = await weatherService.reverseGeocode(latitude, longitude);
+          const newLocation = {
+            name: detectedName,
+            latitude,
+            longitude,
+          };
+          await authService.updateProfile({ location: newLocation });
+          updateUser({ location: newLocation });
+          showToast(`Location detected: ${detectedName}`, 'success');
+          fetchWeather(latitude, longitude, detectedName);
+          setSearchModalOpen(false);
+        } catch (err) {
+          console.warn('GPS location save failed:', err);
+          showToast('Could not save detected GPS location', 'error');
+        } finally {
+          setIsDetectingGps(false);
+        }
+      },
+      (err) => {
+        console.warn('GPS error:', err.message);
+        setIsDetectingGps(false);
+        if (err.code === 1) {
+          showToast('Location permission denied. Please allow location access in your browser.', 'error');
+        } else {
+          showToast('Could not acquire GPS signal. Try searching your city name above.', 'error');
+        }
+      },
+      { timeout: 12000, enableHighAccuracy: true }
+    );
+  };
 
   const fetchWeather = async (lat, lon, name) => {
     setIsWeatherLoading(true);
@@ -303,12 +348,29 @@ export const DashboardPage = () => {
               </button>
             </div>
 
+            {/* One-Click GPS Detection Button */}
+            <button
+              type="button"
+              onClick={handleDetectGpsLocation}
+              disabled={isDetectingGps}
+              className="w-full mb-4 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs group"
+            >
+              <LocateFixed className={`w-4 h-4 text-emerald-600 ${isDetectingGps ? 'animate-spin' : 'group-hover:scale-110'}`} />
+              <span>{isDetectingGps ? 'Detecting Live GPS Position...' : '📍 Use My Live Mobile Location (GPS)'}</span>
+            </button>
+
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex-1 h-px bg-gray-200"></div>
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">or search by name</span>
+              <div className="flex-1 h-px bg-gray-200"></div>
+            </div>
+
             <form onSubmit={handleLocationSearch} className="flex gap-2 mb-4">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Enter city, district, or town..."
+                placeholder="Enter city, district, or town (e.g. Hyderabad)..."
                 className="flex-1 py-2.5 px-3.5 text-xs bg-cream-50 border border-agri-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-agri-500"
               />
               <button
@@ -316,13 +378,17 @@ export const DashboardPage = () => {
                 disabled={isSearching}
                 className="py-2.5 px-4 bg-agri-600 hover:bg-agri-700 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5"
               >
-                <Search className="w-4 h-4" />
-                <span>Search</span>
+                {isSearching ? <Search className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                <span>{isSearching ? 'Searching...' : 'Search'}</span>
               </button>
             </form>
 
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              {searchResults.length > 0 ? (
+              {isSearching ? (
+                <div className="text-center py-6 text-xs text-agri-600 animate-pulse">
+                  Searching location database...
+                </div>
+              ) : searchResults.length > 0 ? (
                 searchResults.map((loc, idx) => (
                   <button
                     key={idx}
@@ -334,9 +400,13 @@ export const DashboardPage = () => {
                     <span className="text-[10px] text-gray-400 ml-2">Select</span>
                   </button>
                 ))
+              ) : searchQuery.length >= 2 ? (
+                <div className="text-center py-6 text-xs text-gray-400">
+                  No matching cities found. Try typing another district or click "Use Live Mobile Location" above.
+                </div>
               ) : (
                 <div className="text-center py-6 text-xs text-gray-400">
-                  Type a district or city (e.g. "Guntur", "Indore", "Nagpur") to search.
+                  Type a district or city (e.g. "Hyderabad", "Vijayawada", "Guntur", "Indore") and click Search.
                 </div>
               )}
             </div>

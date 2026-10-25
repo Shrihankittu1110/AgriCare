@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Sun,
   Gauge,
+  LocateFixed,
 } from 'lucide-react';
 import { weatherService } from '../services/weatherService';
 import { WeatherForecastCard } from '../components/weather/WeatherForecastCard';
@@ -29,6 +30,37 @@ export const WeatherPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
+
+  const handleDetectGps = () => {
+    if (!('geolocation' in navigator)) {
+      showToast('Geolocation is not supported by your browser.', 'error');
+      return;
+    }
+
+    setIsDetectingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          showToast('Acquiring location details...', 'info');
+          const detectedName = await weatherService.reverseGeocode(latitude, longitude);
+          setSearchQuery(detectedName);
+          loadWeather(latitude, longitude, detectedName);
+          showToast(`Weather updated for: ${detectedName}`, 'success');
+        } catch (err) {
+          showToast('Could not resolve GPS address', 'error');
+        } finally {
+          setIsDetectingGps(false);
+        }
+      },
+      (err) => {
+        setIsDetectingGps(false);
+        showToast('Location permission denied or unavailable.', 'error');
+      },
+      { timeout: 12000, enableHighAccuracy: true }
+    );
+  };
 
   const loadWeather = async (lat, lon, name) => {
     setIsLoading(true);
@@ -89,16 +121,26 @@ export const WeatherPage = () => {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full md:w-96">
+        {/* Search Bar & GPS Button */}
+        <div className="relative w-full md:w-[420px]">
           <form onSubmit={handleSearch} className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDetectGps}
+              disabled={isDetectingGps}
+              className="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-2xl text-xs font-bold transition-all flex items-center gap-1 shadow-xs"
+              title="Use Current Device GPS Location"
+            >
+              <LocateFixed className={`w-4 h-4 text-emerald-600 ${isDetectingGps ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{isDetectingGps ? 'GPS...' : 'GPS'}</span>
+            </button>
             <div className="relative flex-1">
               <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-3 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('weather.searchPlaceholder')}
+                placeholder="Search city, district, village..."
                 className="w-full pl-10 pr-4 py-2.5 text-xs bg-white border border-agri-200 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-agri-500"
               />
             </div>
