@@ -2,6 +2,31 @@ import axios from 'axios';
 import fs from 'fs';
 import { config } from '../../config/env.js';
 
+export const fetchSupportedModels = async (apiKey) => {
+  for (const version of ['v1beta', 'v1']) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/${version}/models`;
+      const res = await axios.get(url, {
+        headers: { 'X-goog-api-key': apiKey },
+        timeout: 10000,
+      });
+      const models = (res.data?.models || [])
+        .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+        .map((m) => ({
+          version,
+          name: m.name.replace(/^models\//, ''),
+        }));
+      if (models.length > 0) {
+        console.log(`[GeminiVision] Discovered ${models.length} active models via ${version}:`, models.map((s) => s.name));
+        return models;
+      }
+    } catch (err) {
+      console.warn(`[GeminiVision] ListModels (${version}) error:`, err.response?.data?.error?.message || err.message);
+    }
+  }
+  return [];
+};
+
 export const analyzeCropWithGemini = async (imagePath, mimeType = 'image/jpeg', targetLanguage = 'en') => {
   if (!config.aiProviderApiKey) {
     throw new Error('AI Provider API Key (Gemini) is not configured.');
@@ -83,25 +108,38 @@ Respond ONLY with a valid JSON object matching this exact schema:
       },
     };
 
-    const candidateModels = [
-      config.aiModel,
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-    ].filter(Boolean);
-    const modelsToTry = [...new Set(candidateModels)];
+    // Dynamically discover what models Google supports for this API key
+    const discovered = await fetchSupportedModels(config.aiProviderApiKey);
+
+    let candidates = [];
+    if (discovered.length > 0) {
+      // Prioritize flash models, then any other supported model
+      const flashModels = discovered.filter((m) => m.name.toLowerCase().includes('flash'));
+      const otherModels = discovered.filter((m) => !m.name.toLowerCase().includes('flash'));
+      candidates = [...flashModels, ...otherModels];
+    } else {
+      // Priority list based on Google AI Studio quickstart
+      candidates = [
+        { version: 'v1beta', name: config.aiModel || 'gemini-flash-latest' },
+        { version: 'v1beta', name: 'gemini-flash-latest' },
+        { version: 'v1beta', name: 'gemini-2.5-flash' },
+        { version: 'v1beta', name: 'gemini-2.0-flash' },
+        { version: 'v1', name: 'gemini-flash-latest' },
+      ];
+    }
 
     let lastError = null;
     let successfulResult = null;
 
-    for (const currentModel of modelsToTry) {
+    for (const item of candidates) {
+      const { version = 'v1beta', name: currentModel } = item;
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${config.aiProviderApiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/${version}/models/${currentModel}:generateContent`;
 
         const res = await axios.post(endpoint, payload, {
           headers: {
             'Content-Type': 'application/json',
-            'x-goog-api-key': config.aiProviderApiKey,
+            'X-goog-api-key': config.aiProviderApiKey,
           },
           timeout: 30000,
         });
@@ -123,11 +161,12 @@ Respond ONLY with a valid JSON object matching this exact schema:
         };
 
         successfulResult = parsed;
+        console.log(`[GeminiVision] Successfully diagnosed using model: ${currentModel} (${version})`);
         break;
       } catch (modelErr) {
         lastError = modelErr;
         if (modelErr.response?.status === 404) {
-          console.warn(`[GeminiVision] Model '${currentModel}' not found (404), trying fallback model...`);
+          console.warn(`[GeminiVision] Model '${currentModel}' on ${version} not found (404), trying next option...`);
           continue;
         }
         throw modelErr;
