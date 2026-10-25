@@ -21,7 +21,7 @@ export const config = {
   
   // AI Provider (Gemini / OpenAI)
   aiProviderApiKey: process.env.AI_PROVIDER_API_KEY || process.env.GEMINI_API_KEY || '',
-  aiModel: process.env.AI_MODEL || 'gemini-1.5-flash',
+  aiModel: process.env.AI_MODEL || 'gemini-3.1-flash-lite',
   
   // Crop detection
   cropDetectionProvider: process.env.CROP_DETECTION_PROVIDER || 'auto', // 'auto', 'gemini', 'demo'

@@ -55,6 +55,20 @@ export const ScanCropPage = () => {
     setError(null);
   };
 
+  const handleSelectSample = async (samplePath, filename) => {
+    try {
+      const response = await fetch(samplePath);
+      const blob = await response.blob();
+      const file = new File([blob], filename, { type: 'image/jpeg' });
+      setSelectedFile(file);
+      setActiveTab('upload');
+      setError(null);
+      showToast('Sample leaf loaded! Click "Analyze Leaf Health" below.', 'info');
+    } catch (err) {
+      console.warn('Could not load sample file:', err);
+    }
+  };
+
   const handleAnalyze = async () => {
     if (!selectedFile) {
       setError('Please select or capture a crop leaf image first.');
@@ -201,6 +215,55 @@ export const ScanCropPage = () => {
               <span>{error}</span>
             </div>
           )}
+
+          {/* Demo Sample Leaves Selector for Presentations & Testing */}
+          <div className="bg-cream-100/70 border border-cream-200/90 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-xs font-bold text-agri-900 flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-agri-600" />
+                No live crops nearby? Test with sample leaf specimens:
+              </span>
+              <span className="text-[10px] text-gray-500 font-medium">Click to test</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={() => handleSelectSample('/samples/tomato_early_blight.jpg', 'tomato_early_blight.jpg')}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-agri-50 border border-cream-200 text-left transition-all group"
+              >
+                <img src="/samples/tomato_early_blight.jpg" alt="Tomato Early Blight" className="w-10 h-10 rounded-lg object-cover border" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-agri-900 truncate">Tomato Early Blight</div>
+                  <div className="text-[10px] text-amber-700 font-medium">Target Lesion Symptoms</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectSample('/samples/cotton_leaf_curl.jpg', 'cotton_leaf_curl.jpg')}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-agri-50 border border-cream-200 text-left transition-all group"
+              >
+                <img src="/samples/cotton_leaf_curl.jpg" alt="Cotton Leaf Curl" className="w-10 h-10 rounded-lg object-cover border" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-agri-900 truncate">Cotton Leaf Curl</div>
+                  <div className="text-[10px] text-orange-700 font-medium">Vein Swelling & Curl</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleSelectSample('/samples/healthy_tomato_leaf.jpg', 'healthy_tomato_leaf.jpg')}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white hover:bg-agri-50 border border-cream-200 text-left transition-all group"
+              >
+                <img src="/samples/healthy_tomato_leaf.jpg" alt="Healthy Tomato Leaf" className="w-10 h-10 rounded-lg object-cover border" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-agri-900 truncate">Healthy Tomato Leaf</div>
+                  <div className="text-[10px] text-emerald-700 font-medium">Vibrant & Disease-Free</div>
+                </div>
+              </button>
+            </div>
+          </div>
 
           {/* Guidelines Checklist */}
           <ScanGuidance />
