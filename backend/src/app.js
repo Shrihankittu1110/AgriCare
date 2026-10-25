@@ -78,8 +78,8 @@ app.use(cookieParser());
 // Static file serving for uploaded crop images
 app.use('/uploads', express.static(config.uploadDir));
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check endpoints
+const healthCheckHandler = (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -92,14 +92,24 @@ app.get('/api/health', (req, res) => {
       vision: config.aiProviderApiKey ? `Gemini Vision (${config.aiModel})` : 'AgriCare Pathology Demo Engine',
     },
   });
-});
+};
 
-// Mount API routes
+app.get('/api/health', healthCheckHandler);
+app.get('/health', healthCheckHandler);
+
+// Mount API routes under /api
 app.use('/api/auth', authRoutes);
 app.use('/api/scans', scanRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/users', userRoutes);
+
+// Also mount without /api prefix for flexibility with deployed frontend URLs
+app.use('/auth', authRoutes);
+app.use('/scans', scanRoutes);
+app.use('/weather', weatherRoutes);
+app.use('/assistant', assistantRoutes);
+app.use('/users', userRoutes);
 
 // 404 handler for unknown routes
 app.use((req, res, next) => {
