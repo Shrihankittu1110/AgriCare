@@ -11,13 +11,23 @@ export const fetchSupportedModels = async (apiKey) => {
         timeout: 10000,
       });
       const models = (res.data?.models || [])
-        .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+        .filter((m) => {
+          const name = (m.name || '').toLowerCase();
+          const isGenContent = m.supportedGenerationMethods?.includes('generateContent');
+          const isNotSpecialized = !name.includes('tts') && !name.includes('audio') && !name.includes('embed') && !name.includes('imagen');
+          
+          let supportsImage = true;
+          if (Array.isArray(m.supportedInputModalities)) {
+            supportsImage = m.supportedInputModalities.some((mod) => mod.toUpperCase().includes('IMAGE'));
+          }
+          return isGenContent && isNotSpecialized && supportsImage;
+        })
         .map((m) => ({
           version,
           name: m.name.replace(/^models\//, ''),
         }));
       if (models.length > 0) {
-        console.log(`[GeminiVision] Discovered ${models.length} active models via ${version}:`, models.map((s) => s.name));
+        console.log(`[GeminiVision] Discovered ${models.length} active vision models via ${version}:`, models.map((s) => s.name));
         return models;
       }
     } catch (err) {
@@ -112,26 +122,38 @@ Respond ONLY with a valid JSON object matching this exact schema:
     const discovered = await fetchSupportedModels(config.aiProviderApiKey);
 
     let candidates = [];
+    // User configured model (e.g. gemini-flash-latest) has #1 priority
+    if (config.aiModel) {
+      candidates.push({ version: 'v1beta', name: config.aiModel });
+      candidates.push({ version: 'v1', name: config.aiModel });
+    }
+
     if (discovered.length > 0) {
-      // Prioritize flash models, then any other supported model
       const flashModels = discovered.filter((m) => m.name.toLowerCase().includes('flash'));
       const otherModels = discovered.filter((m) => !m.name.toLowerCase().includes('flash'));
-      candidates = [...flashModels, ...otherModels];
-    } else {
-      // Priority list based on Google AI Studio quickstart
-      candidates = [
-        { version: 'v1beta', name: config.aiModel || 'gemini-flash-latest' },
-        { version: 'v1beta', name: 'gemini-flash-latest' },
-        { version: 'v1beta', name: 'gemini-2.5-flash' },
-        { version: 'v1beta', name: 'gemini-2.0-flash' },
-        { version: 'v1', name: 'gemini-flash-latest' },
-      ];
+      candidates.push(...flashModels, ...otherModels);
     }
+
+    // Default backup models
+    candidates.push(
+      { version: 'v1beta', name: 'gemini-flash-latest' },
+      { version: 'v1beta', name: 'gemini-2.5-flash' },
+      { version: 'v1', name: 'gemini-flash-latest' }
+    );
+
+    // Deduplicate by version + name
+    const seen = new Set();
+    const uniqueCandidates = candidates.filter((c) => {
+      const key = `${c.version}/${c.name}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     let lastError = null;
     let successfulResult = null;
 
-    for (const item of candidates) {
+    for (const item of uniqueCandidates) {
       const { version = 'v1beta', name: currentModel } = item;
       try {
         const endpoint = `https://generativelanguage.googleapis.com/${version}/models/${currentModel}:generateContent`;
@@ -165,8 +187,14 @@ Respond ONLY with a valid JSON object matching this exact schema:
         break;
       } catch (modelErr) {
         lastError = modelErr;
-        if (modelErr.response?.status === 404) {
-          console.warn(`[GeminiVision] Model '${currentModel}' on ${version} not found (404), trying next option...`);
+        const msg = modelErr.response?.data?.error?.message || modelErr.message || '';
+        // If model not found (404) OR does not support images (400), seamlessly try next candidate!
+        if (
+          modelErr.response?.status === 404 ||
+          msg.includes('Image input modality is not enabled') ||
+          msg.includes('is not supported')
+        ) {
+          console.warn(`[GeminiVision] Model '${currentModel}' on ${version} skipped: ${msg}`);
           continue;
         }
         throw modelErr;
